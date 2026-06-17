@@ -1,7 +1,6 @@
 {
   "version": 2,
   "buildCommand": "npm install",
-  "public": true,
   "env": {
     "RIOT_API_KEY": "@riot_api_key"
   },
