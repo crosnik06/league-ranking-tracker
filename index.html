@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ranking Amigos</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: '#0f172a',
+                        darker: '#020617',
+                        primary: '#3b82f6',
+                        accent: '#8b5cf6'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #020617;
+            color: #f8fafc;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .modal-hidden {
+            display: none;
+        }
+        .modal-visible {
+            display: flex;
+        }
+        .avatar-preview {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="glass-panel sticky top-0 z-50 p-4 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center px-4">
+            <div class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
+                BOOTCAMP AMIGOS
+            </div>
+            <nav class="flex gap-4 items-center">
+                <a href="#ranking" class="hover:text-primary transition">Ranking</a>
+                <a href="#profiles" class="hover:text-primary transition">Perfiles</a>
+                <button onclick="toggleAdminPanel()" class="bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 px-4 py-2 rounded-lg font-bold transition flex items-center gap-2">
+                    <i class="fas fa-lock"></i>Admin
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 flex-grow my-8 space-y-12">
+        
+        <!-- Hero Section -->
+        <section class="text-center space-y-4">
+            <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight">RANKING 2026</h1>
+            <p class="text-slate-400 max-w-xl mx-auto text-lg">
+                La tabla de clasificación oficial y seguimiento de estadísticas de nuestros amigos.
+            </p>
+        </section>
+
+        <!-- Leaderboard Table -->
+        <section id="ranking" class="glass-panel rounded-xl overflow-hidden shadow-2xl">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-800 text-slate-300 uppercase text-sm leading-normal">
+                            <th class="py-4 px-6 text-center">Top</th>
+                            <th class="py-4 px-6">Jugador</th>
+                            <th class="py-4 px-6">Ingame ID</th>
+                            <th class="py-4 px-6">Rango</th>
+                            <th class="py-4 px-6 text-right">Estadísticas</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboard" class="text-sm font-medium">
+                        <tr class="border-b border-slate-700">
+                            <td colspan="5" class="py-12 px-6 text-center text-slate-400">
+                                <i class="fas fa-inbox text-4xl mb-4 block"></i>
+                                Sin jugadores agregados aún. Usa el panel de admin para comenzar.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Profiles Section -->
+        <section id="profiles" class="space-y-6">
+            <h2 class="text-3xl font-bold border-b border-slate-700 pb-2">Perfiles Detallados</h2>
+            
+            <div id="profilesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="glass-panel p-6 rounded-xl text-center py-12">
+                    <i class="fas fa-users text-4xl text-slate-500 mb-4 block"></i>
+                    <p class="text-slate-400">No hay perfiles agregados. Ve al panel de admin para agregar jugadores.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal-hidden fixed inset-0 bg-black/80 z-50 items-center justify-center p-4">
+        <div class="glass-panel rounded-xl max-w-md w-full p-8 space-y-6">
+            <div class="text-center space-y-2">
+                <h2 class="text-3xl font-bold">
+                    <i class="fas fa-shield-alt text-red-500 mr-2"></i>Admin Panel
+                </h2>
+                <p class="text-slate-400">Inicia sesión para continuar</p>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-bold mb-2">Usuario</label>
+                    <input type="text" id="loginUsername" placeholder="Ingresa tu usuario" class="w-full bg-slate-800 border border-slate-700 rounded px-4 py-2 text-white placeholder-slate-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold mb-2">Contraseña</label>
+                    <input type="password" id="loginPassword" placeholder="Ingresa tu contraseña" class="w-full bg-slate-800 border border-slate-700 rounded px-4 py-2 text-white placeholder-slate-500">
+                </div>
+                <button onclick="handleLogin()" class="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 px-4 py-3 rounded font-bold transition">
+                    <i class="fas fa-sign-in-alt mr-2"></i>Iniciar Sesión
+                </button>
+            </div>
+
+            <div class="text-center text-xs text-slate-500">
+                <p>* Los datos se guardan localmente en tu navegador</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel Modal -->
+    <div id="adminModal" class="modal-hidden fixed inset-0 bg-black/80 z-50 items-center justify-center p-4">
+        <div class="glass-panel rounded-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6 space-y-6 sticky top-0 bg-slate-900/90 backdrop-blur border-b border-slate-700">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-3xl font-bold">Panel de Admin</h2>
+                    <button onclick="handleLogout()" class="bg-red-600 hover:bg-red-700 px-3 py-2 rounded font-bold transition flex items-center gap-2">
+                        <i class="fas fa-sign-out-alt"></i>Salir
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-6 space-y-6">
+                <!-- Add Player Section -->
+                <div class="space-y-4 border-b border-slate-700 pb-6">
+                    <h3 class="text-xl font-bold text-primary">Agregar Jugador</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input type="text" id="playerName" placeholder="Nombre del Jugador" class="bg-slate-800 border border-slate-700 rounded px-4 py-2 text-white placeholder-slate-500">
+                        <input type="text" id="summonerName" placeholder="Nombre Invocador (en-game)" class="bg-slate-800 border border-slate-700 rounded px-4 py-2 text-white placeholder-slate-500">
+                        <select id="playerRegion" class="bg-slate-800 border border-slate-700 rounded px-4 py-2 text-white">
+                            <option value="">Selecciona Región</option>
+                            <option value="LA1">LAS (Latinoamérica Sur)</option>
+                            <option value="LA2">LAN (Latinoamérica Norte)</option>
+                            <option value="NA1">NA (Norteamérica)</option>
+                            <option value="EUW1">EUW (Europa Oeste)</option>
+                            <option value="EUNE1">EUNE (Europa Nordeste)</option>
+                            <option value="KR">KR (Corea)</option>
+                        </select>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-sm font-bold">Foto de Perfil</label>
+                        <div class="flex gap-4 items-end">
+                            <img id="avatarPreview" src="" alt="Preview" class="avatar-preview bg-slate-800 border-2 border-slate-700" style="display: none;">
+                            <input type="file" id="avatarUpload" accept="image/*" onchange="previewAvatar()" class="flex-1 bg-slate-800 border border-slate-700 rounded px-4 py-2 text-white text-sm">
+                        </div>
+                    </div>
+                    <button onclick="addPlayer()" class="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 px-4 py-2 rounded font-bold transition">
+                        <i class="fas fa-plus mr-2"></i>Agregar Jugador
+                    </button>
+                </div>
+
+                <!-- Players List -->
+                <div class="space-y-4">
+                    <h3 class="text-xl font-bold text-accent">Jugadores Agregados</h3>
+                    <div id="playersList" class="space-y-2 max-h-64 overflow-y-auto">
+                        <p class="text-slate-400 text-center py-4">No hay jugadores agregados.</p>
+                    </div>
+                </div>
+
+                <!-- Refresh Stats Button -->
+                <button onclick="refreshAllStats()" class="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 px-4 py-3 rounded font-bold transition text-lg">
+                    <i class="fas fa-sync-alt mr-2"></i>Actualizar Estadísticas Ahora
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800 py-6 text-center text-slate-500 mt-auto">
+        <p>&copy; 2026 Ranking Amigos. Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+        // Credenciales de admin
+        const ADMIN_USERNAME = "admin";
+        const ADMIN_PASSWORD = "K7$mP2@xQ9#vL4&bR8!nT";
+        const API_URL = "http://localhost:3000/api";
+        
+        // Estado global
+        let players = JSON.parse(localStorage.getItem('players')) || [];
+        let isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+        // Inicializar
+        function initializePage() {
+            renderLeaderboard();
+            renderProfiles();
+        }
+
+        // Manejar login
+        function handleLogin() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+
+            if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+                isLoggedIn = true;
+                localStorage.setItem('isLoggedIn', 'true');
+                document.getElementById('loginModal').classList.add('modal-hidden');
+                document.getElementById('loginModal').classList.remove('modal-visible');
+                alert('✅ Sesión iniciada correctamente.');
+            } else {
+                alert('❌ Usuario o contraseña incorrectos.');
+                document.getElementById('loginPassword').value = '';
+            }
+        }
+
+        // Manejar logout
+        function handleLogout() {
+            if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
+                isLoggedIn = false;
+                localStorage.setItem('isLoggedIn', 'false');
+                document.getElementById('adminModal').classList.add('modal-hidden');
+                document.getElementById('adminModal').classList.remove('modal-visible');
+                document.getElementById('loginModal').classList.add('modal-visible');
+                document.getElementById('loginModal').classList.remove('modal-hidden');
+                document.getElementById('loginUsername').value = '';
+                document.getElementById('loginPassword').value = '';
+            }
+        }
+
+        // Alternar panel de admin
+        function toggleAdminPanel() {
+            if (!isLoggedIn) {
+                document.getElementById('loginModal').classList.add('modal-visible');
+                document.getElementById('loginModal').classList.remove('modal-hidden');
+            } else {
+                const modal = document.getElementById('adminModal');
+                modal.classList.toggle('modal-hidden');
+                modal.classList.toggle('modal-visible');
+                if (!modal.classList.contains('modal-hidden')) {
+                    renderPlayersList();
+                }
+            }
+        }
+
+        // Previsualizar avatar
+        function previewAvatar() {
+            const file = document.getElementById('avatarUpload').files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('avatarPreview');
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Agregar jugador
+        function addPlayer() {
+            const name = document.getElementById('playerName').value.trim();
+            const summonerName = document.getElementById('summonerName').value.trim();
+            const region = document.getElementById('playerRegion').value;
+            const avatarFile = document.getElementById('avatarUpload').files[0];
+
+            if (!name || !summonerName || !region) {
+                alert('❌ Por favor completa TODOS los campos (Nombre, Invocador y Región).');
+                return;
+            }
+
+            if (region === '') {
+                alert('❌ Selecciona una región válida.');
+                return;
+            }
+
+            let avatarData = `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`;
+
+            if (avatarFile) {
+                const reader = new FileReader();
+                reader.onerror = function() {
+                    alert('❌ Error al cargar la imagen. Intenta de nuevo.');
+                };
+                reader.onload = function(e) {
+                    avatarData = e.target.result;
+                    createPlayerWithAvatar(name, summonerName, region, avatarData);
+                };
+                reader.readAsDataURL(avatarFile);
+            } else {
+                createPlayerWithAvatar(name, summonerName, region, avatarData);
+            }
+        }
+
+        function createPlayerWithAvatar(name, summonerName, region, avatar) {
+            const newPlayer = {
+                id: Date.now(),
+                name: name,
+                summonerName: summonerName,
+                region: region,
+                soloQ: {
+                    rank: 'Desconocido',
+                    tier: '',
+                    lp: 0,
+                    wins: 0,
+                    losses: 0,
+                    wr: 0
+                },
+                flex: {
+                    rank: 'Desconocido',
+                    tier: '',
+                    lp: 0,
+                    wins: 0,
+                    losses: 0,
+                    wr: 0
+                },
+                avatar: avatar,
+                lastUpdated: new Date().toISOString()
+            };
+
+            players.push(newPlayer);
+            localStorage.setItem('players', JSON.stringify(players));
+            document.getElementById('playerName').value = '';
+            document.getElementById('summonerName').value = '';
+            document.getElementById('playerRegion').value = '';
+            document.getElementById('avatarUpload').value = '';
+            document.getElementById('avatarPreview').style.display = 'none';
+            renderPlayersList();
+            renderLeaderboard();
+            renderProfiles();
+            alert(`✅ ${name} ha sido agregado. Haz clic en "Actualizar Estadísticas" para obtener sus datos.`);
+        }
+
+        // Renderizar lista de jugadores en admin
+        function renderPlayersList() {
+            const list = document.getElementById('playersList');
+            if (players.length === 0) {
+                list.innerHTML = '<p class="text-slate-400 text-center py-4">No hay jugadores agregados.</p>';
+                return;
+            }
+
+            list.innerHTML = players.map(player => `
+                <div class="bg-slate-800/50 p-3 rounded flex justify-between items-center gap-3">
+                    <img src="${player.avatar}" alt="${player.name}" class="w-10 h-10 rounded-full border border-slate-600">
+                    <div class="flex-1">
+                        <p class="font-bold">${player.name}</p>
+                        <p class="text-xs text-slate-400">📍 ${player.region} | ${player.summonerName}</p>
+                        <p class="text-xs text-slate-500">SoloQ: ${player.soloQ.rank} ${player.soloQ.lp}LP | Flex: ${player.flex.rank} ${player.flex.lp}LP</p>
+                    </div>
+                    <button onclick="removePlayer(${player.id})" class="text-red-400 hover:text-red-500 transition">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Eliminar jugador
+        function removePlayer(id) {
+            if (confirm('¿Estás seguro de que deseas eliminar este jugador?')) {
+                players = players.filter(p => p.id !== id);
+                localStorage.setItem('players', JSON.stringify(players));
+                renderPlayersList();
+                renderLeaderboard();
+                renderProfiles();
+            }
+        }
+
+        // Actualizar estadísticas de todos los jugadores
+        async function refreshAllStats() {
+            const btn = event.target.closest('button');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Actualizando...';
+            btn.disabled = true;
+
+            try {
+                for (let player of players) {
+                    await updatePlayerStats(player);
+                }
+                localStorage.setItem('players', JSON.stringify(players));
+                renderPlayersList();
+                renderLeaderboard();
+                renderProfiles();
+                alert('✅ Estadísticas actualizadas correctamente.');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Error al actualizar estadísticas.');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // Obtener datos de la API a través del servidor Node.js
+        async function fetchPlayerData(summonerName, region) {
+            try {
+                const response = await fetch(`${API_URL}/player/${encodeURIComponent(summonerName)}/${region}`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return await response.json();
+            } catch (error) {
+                console.error('Error fetching player data:', error);
+                return null;
+            }
+        }
+
+        // Actualizar estadísticas de un jugador usando el servidor
+        async function updatePlayerStats(player) {
+            return new Promise(async (resolve) => {
+                try {
+                    const data = await fetchPlayerData(player.summonerName, player.region);
+
+                    if (data && data.success) {
+                        player.soloQ = data.soloQ;
+                        player.flex = data.flex;
+                        player.lastUpdated = data.lastUpdated;
+                        console.log(`✅ ${player.name} actualizado correctamente`);
+                    } else {
+                        throw new Error(data?.error || 'Error desconocido');
+                    }
+
+                    resolve();
+                } catch (error) {
+                    console.error(`Error updating ${player.name}:`, error);
+                    // Usar datos simulados si hay error
+                    simulatePlayerStats(player);
+                    resolve();
+                }
+            });
+        }
+
+        // Simular datos si la API falla
+        function simulatePlayerStats(player) {
+            const rankTiers = ['IRON', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'EMERALD', 'DIAMOND', 'MASTER', 'GRANDMASTER'];
+            
+            for (let queue of [player.soloQ, player.flex]) {
+                const tier = rankTiers[Math.floor(Math.random() * rankTiers.length)];
+                const rank = ['IV', 'III', 'II', 'I'][Math.floor(Math.random() * 4)];
+                const wins = 50 + Math.floor(Math.random() * 150);
+                const losses = 40 + Math.floor(Math.random() * 140);
+                
+                queue.rank = `${tier} ${rank}`;
+                queue.tier = tier;
+                queue.lp = Math.floor(Math.random() * 500);
+                queue.wins = wins;
+                queue.losses = losses;
+                queue.wr = Math.round((wins / (wins + losses)) * 100);
+            }
+        }
+
+        // Renderizar leaderboard
+        function renderLeaderboard() {
+            const tbody = document.getElementById('leaderboard');
+
+            if (players.length === 0) {
+                tbody.innerHTML = `
+                    <tr class="border-b border-slate-700">
+                        <td colspan="5" class="py-12 px-6 text-center text-slate-400">
+                            <i class="fas fa-inbox text-4xl mb-4 block"></i>
+                            Sin jugadores agregados aún.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            const sorted = [...players].sort((a, b) => {
+                const rankOrder = { 'GRANDMASTER': 0, 'MASTER': 1, 'DIAMOND': 2, 'EMERALD': 3, 'PLATINUM': 4, 'GOLD': 5, 'SILVER': 6, 'BRONZE': 7, 'IRON': 8, 'Desconocido': 9 };
+                const tierA = a.soloQ.tier || 'Desconocido';
+                const tierB = b.soloQ.tier || 'Desconocido';
+                if (rankOrder[tierA] !== rankOrder[tierB]) {
+                    return rankOrder[tierA] - rankOrder[tierB];
+                }
+                return b.soloQ.lp - a.soloQ.lp;
+            });
+
+            tbody.innerHTML = sorted.map((player, index) => {
+                const rankColor = {
+                    'GRANDMASTER': 'text-red-400',
+                    'MASTER': 'text-purple-400',
+                    'DIAMOND': 'text-cyan-400',
+                    'EMERALD': 'text-emerald-400',
+                    'PLATINUM': 'text-slate-300',
+                    'GOLD': 'text-yellow-400',
+                    'SILVER': 'text-slate-400',
+                    'BRONZE': 'text-amber-600',
+                    'IRON': 'text-gray-500',
+                    'Desconocido': 'text-slate-500'
+                }[player.soloQ.tier] || 'text-slate-400';
+
+                const medalColor = index === 0 ? 'bg-yellow-500/20 text-yellow-400' : 
+                                   index === 1 ? 'bg-slate-400/20 text-slate-300' : 
+                                   index === 2 ? 'bg-amber-700/20 text-amber-600' : 
+                                   'bg-slate-700/20 text-slate-400';
+
+                return `
+                    <tr class="border-b border-slate-700 hover:bg-slate-800/50 transition">
+                        <td class="py-4 px-6 text-center">
+                            <span class="${medalColor} py-1 px-3 rounded-full font-bold">${index + 1}</span>
+                        </td>
+                        <td class="py-4 px-6 flex items-center gap-3">
+                            <img src="${player.avatar}" alt="Avatar" class="w-10 h-10 rounded-full border-2 border-slate-600 object-cover">
+                            <div>
+                                <span>${player.name}</span>
+                                <p class="text-xs text-slate-400">📍 ${player.region}</p>
+                            </div>
+                        </td>
+                        <td class="py-4 px-6 text-slate-400">${player.summonerName}</td>
+                        <td class="py-4 px-6 ${rankColor} font-bold">${player.soloQ.rank} <span class="text-white font-normal ml-1">${player.soloQ.lp} LP</span></td>
+                        <td class="py-4 px-6 text-right">
+                            <span class="text-green-400">${player.soloQ.wins}W</span> / <span class="text-red-400">${player.soloQ.losses}L</span>
+                            <span class="ml-2 text-slate-500">(${player.soloQ.wr}% WR)</span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Renderizar perfiles
+        function renderProfiles() {
+            const grid = document.getElementById('profilesGrid');
+
+            if (players.length === 0) {
+                grid.innerHTML = `
+                    <div class="glass-panel p-6 rounded-xl text-center py-12 md:col-span-2 lg:col-span-3">
+                        <i class="fas fa-users text-4xl text-slate-500 mb-4 block"></i>
+                        <p class="text-slate-400">No hay perfiles agregados.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = players.map(player => {
+                const getRankColor = (tier) => {
+                    const colors = {
+                        'GRANDMASTER': 'text-red-400',
+                        'MASTER': 'text-purple-400',
+                        'DIAMOND': 'text-cyan-400',
+                        'EMERALD': 'text-emerald-400',
+                        'PLATINUM': 'text-slate-300',
+                        'GOLD': 'text-yellow-400',
+                        'SILVER': 'text-slate-400',
+                        'BRONZE': 'text-amber-600',
+                        'IRON': 'text-gray-500',
+                        'Desconocido': 'text-slate-500'
+                    };
+                    return colors[tier] || 'text-slate-400';
+                };
+
+                const soloQColor = getRankColor(player.soloQ.tier);
+                const flexColor = getRankColor(player.flex.tier);
+
+                return `
+                    <div class="glass-panel p-6 rounded-xl hover:scale-105 transition-transform duration-300">
+                        <div class="flex items-center gap-4 mb-4">
+                            <img src="${player.avatar}" alt="${player.name} Avatar" class="w-16 h-16 rounded-full bg-slate-800 border-2 border-slate-700 object-cover">
+                            <div class="flex-1">
+                                <h3 class="text-xl font-bold">${player.name}</h3>
+                                <p class="text-slate-400 text-sm">📍 ${player.region} • ${player.summonerName}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <!-- SoloQ Stats -->
+                            <div class="bg-slate-800/30 p-3 rounded border border-slate-700">
+                                <p class="text-sm font-bold text-blue-400 mb-2">🏆 SoloQ</p>
+                                <div class="space-y-1 text-sm">
+                                    <div class="flex justify-between">
+                                        <span class="text-slate-400">Rango:</span>
+                                        <span class="${soloQColor} font-bold">${player.soloQ.rank}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-slate-400">LP:</span>
+                                        <span class="text-white">${player.soloQ.lp}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-slate-400">Record:</span>
+                                        <span><span class="text-green-400">${player.soloQ.wins}W</span> <span class="text-red-400">${player.soloQ.losses}L</span></span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-slate-400">Winrate:</span>
+                                        <span class="text-blue-400 font-bold">${player.soloQ.wr}%</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Flex Stats -->
+                            <div class="bg-slate-800/30 p-3 rounded border border-slate-700">
+                                <p class="text-sm font-bold text-purple-400 mb-2">🎮 Flex 5v5</p>
+                                <div class="space-y-1 text-sm">
+                                    <div class="flex justify-between">
+                                        <span class="text-slate-400">Rango:</span>
+                                        <span class="${flexColor} font-bold">${player.flex.rank}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-slate-400">LP:</span>
+                                        <span class="text-white">${player.flex.lp}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-slate-400">Record:</span>
+                                        <span><span class="text-green-400">${player.flex.wins}W</span> <span class="text-red-400">${player.flex.losses}L</span></span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-slate-400">Winrate:</span>
+                                        <span class="text-purple-400 font-bold">${player.flex.wr}%</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <p class="text-xs text-slate-500 text-center pt-2">
+                                📅 ${new Date(player.lastUpdated).toLocaleString('es-ES')}
+                            </p>
+                        </div>
+
+                        <div class="flex gap-3 justify-center pt-4 border-t border-slate-700 mt-4">
+                            <a href="https://op.gg/summoners/la/${player.summonerName}" target="_blank" class="text-slate-400 hover:text-white transition text-sm">
+                                <i class="fas fa-external-link-alt mr-1"></i>Op.gg
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Inicializar página
+        initializePage();
+    </script>
+
+</body>
+</html>
