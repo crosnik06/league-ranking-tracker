@@ -9,7 +9,7 @@ const PORT = 3000;
 app.use(cors());
 app.use(express.json());
 
-const RIOT_API_KEY = "RGAPI-a6bc8fa3-1efe-4176-911a-8f63c825b737";
+const RIOT_API_KEY = "RGAPI-cf1cacbe-b568-41a1-9941-b0442e8b8127";
 const RIOT_API_BASE = "https://americas.api.riotgames.com";
 
 // Mapeo de regiones a plataformas

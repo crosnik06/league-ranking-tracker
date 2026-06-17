@@ -19,7 +19,7 @@ const regionMap = {
 };
 
 // Para Vercel: leer API Key desde variables de entorno
-const RIOT_API_KEY = process.env.RIOT_API_KEY || "RGAPI-a6bc8fa3-1efe-4176-911a-8f63c825b737";
+const RIOT_API_KEY = process.env.RIOT_API_KEY || "RGAPI-cf1cacbe-b568-41a1-9941-b0442e8b8127";
 const RIOT_API_BASE = "https://americas.api.riotgames.com";
 
 // Función serverless para Vercel
