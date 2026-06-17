@@ -1,9 +1,6 @@
 {
   "version": 2,
   "buildCommand": "npm install",
-  "env": {
-    "RIOT_API_KEY": "@riot_api_key"
-  },
   "routes": [
     {
       "src": "/api/(.*)",
